@@ -18,8 +18,7 @@ type Retranslator interface {
 }
 
 type Config struct {
-	ChannelSize uint64
-
+	ChannelSize    uint64
 	ConsumerCount  uint64
 	ConsumeSize    uint64
 	ConsumeTimeout time.Duration
@@ -48,6 +47,7 @@ func NewRetranslator(cfg Config) Retranslator {
 		cfg.ConsumeTimeout,
 		cfg.Repo,
 		events)
+
 	producer := producer.NewKafkaProducer(
 		cfg.ProducerCount,
 		cfg.Sender,

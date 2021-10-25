@@ -5,5 +5,5 @@ import (
 )
 
 type EventSender interface {
-	Send(subdomain *model.InternshipEvent) error
+	Send(internship *model.InternshipEvent) error
 }

@@ -29,5 +29,6 @@ func TestStart(t *testing.T) {
 
 	retranslator := NewRetranslator(cfg)
 	retranslator.Start()
+	time.Sleep(time.Second)
 	retranslator.Close()
 }

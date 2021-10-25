@@ -65,6 +65,9 @@ func (c *consumer) Start() {
 			for {
 				select {
 				case <-ticker.C:
+					if c.repo == nil {
+						continue
+					}
 					events, err := c.repo.Lock(c.batchSize)
 					if err != nil {
 						continue

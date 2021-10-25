@@ -57,7 +57,7 @@ func (p *producer) Start() {
 				select {
 				case event := <-p.events:
 					if err := p.sender.Send(&event); err != nil {
-						p.workerPool.Submit(func() {})
+						continue
 					} else {
 						p.workerPool.Submit(func() {})
 					}
