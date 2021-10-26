@@ -1,6 +1,8 @@
 package producer
 
 import (
+	"github.com/ozonmp/wrk-internship-api/internal/app/repo"
+	"log"
 	"sync"
 	"time"
 
@@ -16,21 +18,20 @@ type Producer interface {
 }
 
 type producer struct {
-	n       uint64
-	timeout time.Duration
-
-	sender sender.EventSender
-	events <-chan model.InternshipEvent
-
+	n          uint64
+	timeout    time.Duration
+	repo       repo.EventRepo
+	sender     sender.EventSender
+	events     <-chan model.InternshipEvent
 	workerPool *workerpool.WorkerPool
-
-	wg   *sync.WaitGroup
-	done chan bool
+	wg         *sync.WaitGroup
+	done       chan bool
 }
 
 func NewKafkaProducer(
 	n uint64,
 	sender sender.EventSender,
+	repo repo.EventRepo,
 	events <-chan model.InternshipEvent,
 	workerPool *workerpool.WorkerPool,
 ) Producer {
@@ -42,6 +43,7 @@ func NewKafkaProducer(
 		n:          n,
 		sender:     sender,
 		events:     events,
+		repo:       repo,
 		workerPool: workerPool,
 		wg:         wg,
 		done:       done,
@@ -56,16 +58,33 @@ func (p *producer) Start() {
 			for {
 				select {
 				case event := <-p.events:
-					if err := p.sender.Send(&event); err != nil {
+					err := p.sender.Send(&event)
+					if err != nil {
+						p.processUpdate([]uint64{event.Id})
 						continue
-					} else {
-						p.workerPool.Submit(func() {})
 					}
+					p.processClean([]uint64{event.Id})
 				case <-p.done:
 					return
 				}
 			}
 		}()
+	}
+}
+
+func (p *producer) processUpdate(eventIDs []uint64) {
+	p.workerPool.Submit(func() {
+		err := p.repo.Unlock(eventIDs)
+		if err != nil {
+			log.Printf("update error: %s\n", err)
+		}
+	})
+}
+
+func (p *producer) processClean(eventIDs []uint64) {
+	err := p.repo.Remove(eventIDs)
+	if err != nil {
+		log.Printf("remove error: %s\n", err)
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 )
 
 func TestStart(t *testing.T) {
+	t.Parallel()
 
 	ctrl := gomock.NewController(t)
 	repo := mocks.NewMockEventRepo(ctrl)
@@ -20,15 +21,15 @@ func TestStart(t *testing.T) {
 		ChannelSize:    512,
 		ConsumerCount:  2,
 		ConsumeSize:    10,
-		ConsumeTimeout: 10 * time.Second,
+		ConsumeTimeout: time.Second,
 		ProducerCount:  2,
 		WorkerCount:    2,
 		Repo:           repo,
 		Sender:         sender,
 	}
 
-	retranslator := NewRetranslator(cfg)
-	retranslator.Start()
-	time.Sleep(time.Second)
-	retranslator.Close()
+	r := NewRetranslator(cfg)
+	r.Start()
+	time.Sleep(2 * time.Second)
+	r.Close()
 }

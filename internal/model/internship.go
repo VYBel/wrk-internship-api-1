@@ -24,12 +24,10 @@ const (
 )
 
 type InternshipEvent struct {
-	Id           uint64
-	Team_id      uint64
-	Description  string
-	Period       string
-	Compensation bool
-	Entity       *Internship
+	Id     uint64
+	Type   EventType
+	Status EventStatus
+	Entity *Internship
 }
 
 func (internship *Internship) String() string {

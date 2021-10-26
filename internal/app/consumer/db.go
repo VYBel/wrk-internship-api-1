@@ -1,6 +1,7 @@
 package consumer
 
 import (
+	"log"
 	"sync"
 	"time"
 
@@ -66,7 +67,8 @@ func (c *consumer) Start() {
 				select {
 				case <-ticker.C:
 					if c.repo == nil {
-						continue
+						log.Printf("repo is nil? %+v\n", c)
+						return
 					}
 					events, err := c.repo.Lock(c.batchSize)
 					if err != nil {
