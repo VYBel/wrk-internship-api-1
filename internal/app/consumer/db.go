@@ -68,7 +68,7 @@ func (c *consumer) Start() {
 				case <-ticker.C:
 					if c.repo == nil {
 						log.Printf("repo is nil? %+v\n", c)
-						return
+						continue
 					}
 					events, err := c.repo.Lock(c.batchSize)
 					if err != nil {
